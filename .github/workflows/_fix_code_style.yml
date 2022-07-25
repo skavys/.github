@@ -1,0 +1,86 @@
+name: Fix Code Style
+
+on:
+  workflow_call:
+    inputs:
+      cache_key:
+        description: "PHP extensions cache key"
+        required: true
+        type: string
+      php:
+        description: "PHP version to run on"
+        required: false
+        default: "8.1"
+        type: string
+      message:
+        description: "Message for linter commit"
+        required: false
+        default: "Fix code styling"
+        type: string
+      extensions:
+        description: "PHP extensions"
+        default: curl, dom, json, libxml, mbstring
+        required: false
+        type: string
+      ini_values:
+        description: "PHP ini values"
+        default: max_execution_time=180, date.timezone=Asia/Tbilisi
+        required: false
+        type: string
+
+jobs:
+  lint:
+    timeout-minutes: 15
+    name: linting
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        php-version: [ 8.1 ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.PAT }}
+
+      - name: Setup cache environment
+        id: ext-cache
+        uses: shivammathur/cache-extensions@v1
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: ${{ inputs.extensions }}
+          key: ${{ inputs.cache_key }}
+
+      - name: Cache extensions
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.ext-cache.outputs.dir }}
+          key: ${{ steps.ext-cache.outputs.key }}
+          restore-keys: ${{ steps.ext-cache.outputs.key }}
+
+      - name: Setup PHP version ${{ matrix.php-version }} on ${{ matrix.os }}
+        id: setup-php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: ${{ inputs.extensions }}
+          tools: composer, laravel/pint
+          coverage: none
+          ini-values: ${{ inputs.ini_values }}
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          update: true
+
+      - name: Setup problem matchers
+        run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+
+      - name: Run linter
+        run: pint
+
+      - name: Commit linted files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: ${{ inputs.message }}
