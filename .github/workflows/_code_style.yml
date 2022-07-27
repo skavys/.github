@@ -1,4 +1,4 @@
-name: Code Style Pint
+name: Code Style
 
 # TODO: make auto-commit for check-style
 # TODO: check all caches
@@ -8,10 +8,6 @@ on:
     inputs:
       cache_key:
         description: "PHP extensions cache key"
-        required: true
-        type: string
-      style_report:
-        description: "Path to auto-generated style report (todo: delete it later)"
         required: true
         type: string
       extensions:
@@ -26,15 +22,15 @@ on:
         type: string
       ini_values:
         description: "PHP ini values"
-        default: max_execution_time=180, date.timezone=America/New_York
+        default: max_execution_time=180, date.timezone=Asia/Tbilisi
         required: false
         type: string
 
 jobs:
-  code-style-pint:
+  code-style:
     timeout-minutes: 15
     if: github.event.pull_request.draft == false
-    name: code-style-pint
+    name: code-style
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -88,4 +84,9 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: Check PHP code style
+        id: cs-check
         run: pint --test
+
+      - name: Generate Annotations on CS errors
+        if: failure() && steps.cs-check.outcome != 'success'
+        run: pint --test --format=checkstyle | cs2pr

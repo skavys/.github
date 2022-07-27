@@ -14,17 +14,17 @@ on:
         type: number
       extensions:
         description: "PHP extensions"
-        default: simplexml, mbstring
+        default: simplexml, mbstring, sqlite3
         required: false
         type: string
       tools:
         description: "PHP tools"
         required: false
-        default: composer, cs2pr, phpunit/phpunit
+        default: composer, cs2pr, pestphp/pest
         type: string
       ini_values:
         description: "PHP ini values"
-        default: max_execution_time=180, date.timezone=America/New_York
+        default: max_execution_time=180, date.timezone=Asia/Tbilisi
         required: false
         type: string
 
