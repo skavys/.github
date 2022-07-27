@@ -88,4 +88,7 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: Run test suite
-        run: php artisan test --coverage --min=${{ inputs.min_coverage }}
+        run: |
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          php artisan key:generate
+          php artisan test --coverage --min=${{ inputs.min_coverage }}
