@@ -89,4 +89,4 @@ jobs:
 
       - name: Generate Annotations on CS errors
         if: failure() && steps.cs-check.outcome != 'success'
-        run: pint --test --format=checkstyle | cs2pr
+        run: cs2pr report.xml
