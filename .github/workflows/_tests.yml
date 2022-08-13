@@ -91,4 +91,4 @@ jobs:
         run: |
           php -r "file_exists('.env') || copy('.env.example', '.env');"
           php artisan key:generate
-          ./vendor/bin/pest --coverage --min=${{ inputs.min_coverage }}
+          php artisan test --coverage --min=${{ inputs.min_coverage }}
