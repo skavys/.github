@@ -85,7 +85,7 @@ jobs:
 
       - name: Check PHP code style
         id: cs-check
-        run: pint --test
+        run: pint --test -v
 
       - name: Generate Annotations on CS errors
         if: failure() && steps.cs-check.outcome != 'success'
