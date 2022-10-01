@@ -81,7 +81,7 @@ jobs:
         run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
 
       - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+        run: composer validate --strict --ansi
 
       - name: Composer Install
         id: composer-install
@@ -91,4 +91,4 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: Run PHPStan
-        run: phpstan analyse -c ${{ inputs.config_file }}
+        run: phpstan analyse --ansi --memory-limit=-1 -c ${{ inputs.config_file }}

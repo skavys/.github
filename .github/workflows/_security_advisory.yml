@@ -80,7 +80,7 @@ jobs:
         run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
 
       - name: Validate composer.json and composer.lock
-        run: composer validate --strict
+        run: composer validate --strict --ansi
 
       - name: Composer Install
         id: composer-install
@@ -90,4 +90,4 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: Security Advisories
-        run: composer update --dry-run roave/security-advisories ${{ inputs.options }}
+        run: composer update --dry-run --ansi roave/security-advisories ${{ inputs.options }}
