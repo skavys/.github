@@ -10,7 +10,7 @@ on:
       php:
         description: "PHP version to run on"
         required: false
-        default: "8.1"
+        default: "8.2"
         type: string
       extensions:
         description: "PHP extensions"
@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        php-version: [ 8.1 ]
+        php-version: [ 8.2 ]
 
     steps:
       - name: Checkout code
