@@ -3,14 +3,19 @@ name: Fix Code Style
 on:
   workflow_call:
     inputs:
+      php_versions:
+        description: "PHP version to run on"
+        required: false
+        default: "['8.2']"
+        type: string
+      os:
+        description: "OS version to run on"
+        required: false
+        default: "['ubuntu-latest']"
+        type: string
       cache_key:
         description: "PHP extensions cache key"
         required: true
-        type: string
-      php:
-        description: "PHP version to run on"
-        required: false
-        default: "8.2"
         type: string
       message:
         description: "Message for linter commit"
@@ -36,8 +41,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        php-version: [ 8.2 ]
+        os: ${{ fromJson(inputs.os) }}
+        php-version: ${{ fromJson(inputs.php_versions) }}
 
     steps:
       - name: Checkout code

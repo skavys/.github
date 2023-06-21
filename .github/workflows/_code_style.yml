@@ -6,6 +6,16 @@ name: Code Style
 on:
   workflow_call:
     inputs:
+      php_versions:
+        description: "PHP version to run on"
+        required: false
+        default: "['8.2']"
+        type: string
+      os:
+        description: "OS version to run on"
+        required: false
+        default: "['ubuntu-latest']"
+        type: string
       cache_key:
         description: "PHP extensions cache key"
         required: true
@@ -35,8 +45,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        php-version: [ 8.2 ]
+        os: ${{ fromJson(inputs.os) }}
+        php-version: ${{ fromJson(inputs.php_versions) }}
 
     steps:
       - name: Checkout code
@@ -85,7 +95,7 @@ jobs:
 
       - name: Check PHP code style
         id: cs-check
-        run: pint --test -v
+        run: composer style
 
       - name: Generate Annotations on CS errors
         if: failure() && steps.cs-check.outcome != 'success'
