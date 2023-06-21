@@ -1,48 +1,54 @@
-name: Security Advisory
+name: Code Rector
 
 on:
   workflow_call:
     inputs:
+      php_versions:
+        description: "PHP version to run on"
+        required: false
+        default: "['8.2']"
+        type: string
+      os:
+        description: "OS version to run on"
+        required: false
+        default: "['ubuntu-latest']"
+        type: string
       cache_key:
         description: "PHP extensions cache key"
         required: true
-        type: string
-      php:
-        description: "PHP version to run on"
-        required: false
-        default: "8.2"
         type: string
       extensions:
         description: "PHP extensions"
         default: mbstring
         required: false
         type: string
-      options:
-        description: "Additional options to composer update command. --dry-run is always set."
-        required: false
-        type: string
       tools:
         description: "PHP tools"
         required: false
-        default: composer, roave/security-advisories:dev-latest
+        default: composer, cs2pr, rector/rector
         type: string
       ini_values:
         description: "PHP ini values"
         default: max_execution_time=180, date.timezone=Asia/Tbilisi
         required: false
         type: string
+      config_file:
+        description: "Rector config file"
+        default: ./rector.php
+        required: false
+        type: string
 
 jobs:
-  security-check:
+  code-rector:
     timeout-minutes: 15
     if: github.event.pull_request.draft == false
-    name: security-check
+    name: code-rector
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
-        php-version: [ 8.2 ]
+        os: ${{ fromJson(inputs.os) }}
+        php-version: ${{ fromJson(inputs.php_versions) }}
 
     steps:
       - name: Checkout code
@@ -89,5 +95,12 @@ jobs:
           dependency-versions: "locked"
           composer-options: "--prefer-dist"
 
-      - name: Security Advisories
-        run: composer update --dry-run --ansi roave/security-advisories ${{ inputs.options }}
+      - name: Rector Cache
+        uses: actions/cache@v3
+        with:
+          path: ./var/cache/rector
+          key: ${{ runner.os }}-rector-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-rector-
+
+      - name: Rector Dry Run
+        run: composer rector -- --config=${{ inputs.config_file }}
