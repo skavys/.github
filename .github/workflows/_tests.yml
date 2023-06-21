@@ -11,7 +11,7 @@ on:
       os:
         description: "OS version to run on"
         required: false
-        default: "['ubuntu-latest', 'macos-latest']"
+        default: "['ubuntu-latest']"
         type: string
       cache_key:
         description: "PHP extensions cache key"
