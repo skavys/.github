@@ -1,4 +1,4 @@
-name: Code Testing
+name: Laravel App Code Testing
 
 on:
   workflow_call:
@@ -37,11 +37,6 @@ on:
         default: max_execution_time=180, date.timezone=Asia/Tbilisi
         required: false
         type: string
-      type_coverage:
-        description: "Type Coverage"
-        default: 0
-        required: false
-        type: number
 
 jobs:
   tests:
@@ -103,9 +98,7 @@ jobs:
           composer-options: "--prefer-dist"
 
       - name: Run test suite
-        id: tests-coverage
-        run: composer tests-coverage
-
-      - name: Run test type-coverage suite
-        if: success() && steps.tests-coverage.outcome == 'success' && ${{ inputs.type_coverage }} > 0
-        run: ./vendor/bin/pest --type-coverage --parallel --min=${{ inputs.type_coverage }}
+        run: |
+          php -r "file_exists('.env') || copy('.env.example', '.env');"
+          php artisan key:generate
+          php artisan test --coverage --min=${{ inputs.min_coverage }}
